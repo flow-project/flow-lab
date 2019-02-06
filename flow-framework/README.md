@@ -28,8 +28,8 @@ across density settings and generalize to out-of-distribution settings.
 
 ## Resources
 
-* Paper: [https://arxiv.org/pdf/1710.05465.pdf]()
-* Website: [https://sites.google.com/view/ieee-tro-flow]()
+* Paper: [https://arxiv.org/pdf/1710.05465.pdf](https://arxiv.org/pdf/1710.05465.pdf)
+* Website: [https://sites.google.com/view/ieee-tro-flow](https://sites.google.com/view/ieee-tro-flow)
 
 ## Usage
 
