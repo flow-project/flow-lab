@@ -61,8 +61,8 @@ def dissipating_waves(render=None):
 
     # Set parameters for the network
     additional_net_params = ADDITIONAL_NET_PARAMS.copy()
-    additional_net_params["pre_merge_length"] = 500
-    additional_net_params["post_merge_length"] = 200
+    additional_net_params["pre_merge_length"] = 600
+    additional_net_params["post_merge_length"] = 100
     additional_net_params["merge_lanes"] = 1
     additional_net_params["highway_lanes"] = 1
     net_params = NetParams(inflows=inflow,
