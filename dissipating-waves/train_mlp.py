@@ -8,7 +8,8 @@ except ImportError:
 from ray.tune import run_experiments
 from ray.tune.registry import register_env
 
-from flow.utils.registry import make_create_env
+# from flow.utils.registry import make_create_env
+from utils import make_create_env, unscaledMergePOEnv
 from flow.utils.rllib import FlowParamsEncoder
 from flow.controllers import RLController, IDMController
 from flow.core.experiment import Experiment
@@ -80,7 +81,7 @@ def get_flow_params(rl_penetration):
         exp_tag="dissipating_waves",
 
         # name of the flow environment the experiment is running on
-        env_name="MergePOEnv",
+        env_name=unscaledMergePOEnv,
 
         # name of the scenario class the experiment is running on
         scenario="MergeScenario",
