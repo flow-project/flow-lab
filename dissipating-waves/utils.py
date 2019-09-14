@@ -2,7 +2,7 @@ from copy import deepcopy
 import gym
 from gym.envs.registration import register
 import flow.envs
-from flow.envs import MergePOEnv
+from flow.envs import MergePOEnv, Env
 from flow.core.params import InitialConfig, VehicleParams
 from flow.core.params import TrafficLightParams
 import numpy as np
