@@ -56,8 +56,8 @@ def make_create_env(params, version=0, render=None):
             env_name = params['env_name'].split(".")[-1] + '-v{}'.format(version)
         env_name = params["env_name"] + '-v{}'.format(version)
 
-    module = __import__("flow.scenarios", fromlist=[params["scenario"]])
-    scenario_class = getattr(module, params["scenario"])
+    module = __import__("flow.networks", fromlist=[params["network"]])
+    network_class = getattr(module, params["network"])
 
     env_params = params['env']
     net_params = params['net']
@@ -68,7 +68,7 @@ def make_create_env(params, version=0, render=None):
         sim_params = deepcopy(params['sim'])
         vehicles = deepcopy(params['veh'])
 
-        scenario = scenario_class(
+        network = network_class(
             name=exp_tag,
             vehicles=vehicles,
             net_params=net_params,
@@ -105,7 +105,7 @@ def make_create_env(params, version=0, render=None):
                 kwargs={
                     "env_params": env_params,
                     "sim_params": sim_params,
-                    "scenario": scenario,
+                    "network": network,
                     "simulator": params['simulator']
                 })
         except Exception:
@@ -186,11 +186,11 @@ PERTURB_ENV_PARAMS = {
 
 class PerturbingRingEnv(unscaledMergePOEnv):
     """Modified version of MergePOEnv that perturbs vehicles."""
-    def __init__(self, env_params, sim_params, scenario, simulator='traci'):
+    def __init__(self, env_params, sim_params, network, simulator='traci'):
         self.counter = 0
-        self.num_rl_vehicles = scenario.vehicles.num_rl_vehicles
-        self.num_total_vehicles = scenario.vehicles.num_vehicles
-        super().__init__(env_params, sim_params, scenario, simulator)
+        self.num_rl_vehicles = network.vehicles.num_rl_vehicles
+        self.num_total_vehicles = network.vehicles.num_vehicles
+        super().__init__(env_params, sim_params, network, simulator)
 
     def _apply_rl_actions(self, rl_actions):
         for i, rl_id in enumerate(self.rl_veh):
@@ -204,8 +204,8 @@ class PerturbingRingEnv(unscaledMergePOEnv):
         self.follower = []
 
         # normalizing constants
-        max_speed = self.k.scenario.max_speed()
-        max_length = self.k.scenario.length()
+        max_speed = self.k.network.max_speed()
+        max_length = self.k.network.length()
 
         observation = [0 for _ in range(5 * self.num_rl)]
         for i, rl_id in enumerate(self.rl_veh):

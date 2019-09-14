@@ -4,8 +4,8 @@ from flow.controllers import RLController, IDMController, ContinuousRouter
 from flow.core.experiment import Experiment
 from flow.core.params import SumoParams, EnvParams, InitialConfig, InFlows, NetParams
 from flow.core.params import VehicleParams, SumoCarFollowingParams
-from flow.scenarios import RingScenario
-from flow.scenarios.ring import ADDITIONAL_NET_PARAMS
+from flow.networks import RingNetwork
+from flow.networks.ring import ADDITIONAL_NET_PARAMS
 
 
 def ring_perturbation(render=None):
@@ -45,9 +45,9 @@ def ring_perturbation(render=None):
     net_params = NetParams(
                            additional_params=additional_net_params)
 
-    # Setup the scenario
+    # Setup the network
     initial_config = InitialConfig(shuffle=True)
-    scenario = RingScenario(
+    network = RingScenario(
         name='testing',
         vehicles=vehicles,
         net_params=net_params,
@@ -55,7 +55,7 @@ def ring_perturbation(render=None):
 
     # Setup the environment
     env_params = EnvParams(additional_params=PERTURB_ENV_PARAMS)
-    env = PerturbingRingEnv(env_params, sim_params, scenario)
+    env = PerturbingRingEnv(env_params, sim_params, network)
     return Experiment(env)
 
 if __name__=="__main__":

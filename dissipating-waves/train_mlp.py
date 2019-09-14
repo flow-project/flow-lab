@@ -15,12 +15,12 @@ from flow.controllers import RLController, IDMController
 from flow.core.experiment import Experiment
 from flow.core.params import SumoParams, EnvParams, InitialConfig, InFlows, NetParams
 from flow.core.params import VehicleParams, SumoCarFollowingParams
-from flow.scenarios.merge import ADDITIONAL_NET_PARAMS
+from flow.networks.merge import ADDITIONAL_NET_PARAMS
 
 FLOW_RATE = 2000
 HORIZON = 1800
 N_ROLLOUTS = 20
-N_CPUS = 2
+N_CPUS = 16
 
 
 def setup_inflows(rl_penetration):
@@ -83,8 +83,8 @@ def get_flow_params(rl_penetration):
         # name of the flow environment the experiment is running on
         env_name=unscaledMergePOEnv,
 
-        # name of the scenario class the experiment is running on
-        scenario="MergeScenario",
+        # name of the network class the experiment is running on
+        network="MergeNetwork",
 
         # simulator that is used by the experiment
         simulator='traci',
@@ -111,7 +111,7 @@ def get_flow_params(rl_penetration):
         ),
 
         # network-related parameters (see flow.core.params.NetParams and the
-        # scenario's documentation or ADDITIONAL_NET_PARAMS component)
+        # network's documentation or ADDITIONAL_NET_PARAMS component)
         net=NetParams(
             inflows=setup_inflows(rl_penetration),
             additional_params=additional_net_params,

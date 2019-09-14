@@ -4,8 +4,8 @@ from flow.controllers import RLController, IDMController
 from flow.core.experiment import Experiment
 from flow.core.params import SumoParams, EnvParams, InitialConfig, InFlows, NetParams
 from flow.core.params import VehicleParams, SumoCarFollowingParams
-from flow.scenarios import MergeScenario
-from flow.scenarios.merge import ADDITIONAL_NET_PARAMS
+from flow.networks import MergeNetwork
+from flow.networks.merge import ADDITIONAL_NET_PARAMS
 
 RL_PENETRATION = 0.1
 FLOW_RATE = 2000
@@ -68,9 +68,9 @@ def dissipating_waves(render=None):
     net_params = NetParams(inflows=inflow,
                            additional_params=additional_net_params)
 
-    # Setup the scenario
+    # Setup the network
     initial_config = InitialConfig()
-    scenario = MergeScenario(
+    network = MergeNetwork(
         name='testing',
         vehicles=vehicles,
         net_params=net_params,
@@ -78,7 +78,7 @@ def dissipating_waves(render=None):
 
     # Setup the environment
     env_params = EnvParams(additional_params=ADDITIONAL_ENV_PARAMS)
-    env = MergePOEnv(env_params, sim_params, scenario)
+    env = MergePOEnv(env_params, sim_params, network)
     return Experiment(env)
 
 if __name__=="__main__":
