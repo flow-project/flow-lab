@@ -25,6 +25,7 @@ ENV_PATH="$(dirname "$(which python)")"
 # install dependencies
 mkdir flow-framework && cd flow-framework
 
+#[FIX TO RLLIB]
 # -- rllab
 git clone https://github.com/cathywu/rllab-multiagent
 pushd rllab-multiagent
@@ -35,6 +36,7 @@ popd
 # -- Flow
 git clone https://github.com/flow-project/flow
 pushd flow
+#make sure we update this
 git checkout f626cc5f030247471cd9ecdd32b6686c76d8ac3a
 python setup.py develop
 popd

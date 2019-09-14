@@ -3,7 +3,7 @@ import gym
 from gym.envs.registration import register
 import flow.envs
 from flow.envs import MergePOEnv
-from flow.core.params import InitialConfig
+from flow.core.params import InitialConfig, VehicleParams
 from flow.core.params import TrafficLightParams
 import numpy as np
 
@@ -82,10 +82,12 @@ def desired_velocity(env, fail=False, edge_list=None):
     cost = vel - target_vel
     cost = np.linalg.norm(cost)
 
+    #Removed rescaling -- flow.core.rewards.desired_velocity
     return max(max_cost - cost, 0)
 
 
 class unscaledMergePOEnv(MergePOEnv):
+    """modified from flow.envs.merge """
 
     def compute_reward(self, rl_actions, **kwargs):
         """See class definition."""
@@ -134,6 +136,8 @@ class PerturbingRingEnv(unscaledMergePOEnv):
     """Modified version of MergePOEnv that perturbs vehicles."""
     def __init__(self, env_params, sim_params, scenario, simulator='traci'):
         self.counter = 0
+        self.num_rl_vehicles = scenario.vehicles.num_rl_vehicles
+        self.num_total_vehicles = scenario.vehicles.num_vehicles
         super().__init__(env_params, sim_params, scenario, simulator)
 
     def _apply_rl_actions(self, rl_actions):
@@ -208,3 +212,43 @@ class PerturbingRingEnv(unscaledMergePOEnv):
             pos = self.k.vehicle.get_position(in_edge)
             target_id = in_edge[np.argmin(np.abs(pos))]
             self.k.vehicle.apply_acceleration(target_id, -abs(self.env_params.additional_params["max_decel"]))
+
+    def setup_initial_state(self):
+        """Store information on the initial state of vehicles in the network.
+
+        This information is to be used upon reset. This method also adds this
+        information to the self.vehicles class and starts a subscription with
+        sumo to collect state information each step.
+        """
+        # determine whether to shuffle the vehicles
+        if self.initial_config.shuffle:
+            self.even_distribute(self.num_total_vehicles, self.num_rl_vehicles)
+
+        # generate starting position for vehicles in the network
+        start_pos, start_lanes = self.k.network.generate_starting_positions(
+            initial_config=self.initial_config,
+            num_vehicles=len(self.initial_ids))
+
+        # save the initial state. This is used in the _reset function
+        for i, veh_id in enumerate(self.initial_ids):
+            type_id = self.k.vehicle.get_type(veh_id)
+            pos = start_pos[i][1]
+            lane = start_lanes[i]
+            speed = self.k.vehicle.get_initial_speed(veh_id)
+            edge = start_pos[i][0]
+
+            self.initial_state[veh_id] = (type_id, edge, lane, pos, speed)
+
+    def even_distribute(self, total_num_cars, rl_num_cars):
+        total_human = total_num_cars - rl_num_cars
+        num_of_cars_between = int(total_human / rl_num_cars)
+
+        num = 0
+        for i in np.arange(total_num_cars):
+            if num == rl_num_cars:
+                return self.initial_ids
+
+            if "rl" in self.initial_ids[i]:
+                num += 1
+                # old_position = self.initial_ids[i]
+                self.initial_ids.insert((num_of_cars_between * num) + num, self.initial_ids.pop(i))
