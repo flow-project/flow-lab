@@ -6,12 +6,55 @@ from flow.envs import MergePOEnv
 from flow.core.params import InitialConfig, VehicleParams
 from flow.core.params import TrafficLightParams
 import numpy as np
+import inspect
+import json
+
+## need to override the encoder
+class FlowParamsEncoder(json.JSONEncoder):
+    """modified from flow.utils.rllib"""
+    def default(self, obj):
+        """See parent class.
+
+        Extended to support the VehicleParams object in flow/core/params.py.
+        """
+        allowed_types = [dict, list, tuple, str, int, float, bool, type(None)]
+
+        if obj not in allowed_types:
+            if isinstance(obj, VehicleParams):
+                res = deepcopy(obj.initial)
+                for res_i in res:
+                    res_i["acceleration_controller"] = \
+                        (res_i["acceleration_controller"][0].__name__,
+                         res_i["acceleration_controller"][1])
+                    res_i["lane_change_controller"] = \
+                        (res_i["lane_change_controller"][0].__name__,
+                         res_i["lane_change_controller"][1])
+                    if res_i["routing_controller"] is not None:
+                        res_i["routing_controller"] = \
+                            (res_i["routing_controller"][0].__name__,
+                             res_i["routing_controller"][1])
+                return res
+            if inspect.isclass(obj):
+                if issubclass(obj, Env):
+                    return "{}.{}".format(obj.__module__, obj.__name__)
+            if hasattr(obj, '__name__'):
+                return obj.__name__
+            else:
+                return obj.__dict__
+
+        return json.JSONEncoder.default(self, obj)
+
 
 # Use while #718 in flow is not yet resolved
 def make_create_env(params, version=0, render=None):
     exp_tag = params["exp_tag"]
 
-    env_name = params["env_name"] + '-v{}'.format(version)
+    try:
+        env_name = params["env_name"].__name__ + '-v{}'.format(version)
+    except AttributeError:
+        if "." in params['env_name']:
+            env_name = params['env_name'].split(".")[-1] + '-v{}'.format(version)
+        env_name = params["env_name"] + '-v{}'.format(version)
 
     module = __import__("flow.scenarios", fromlist=[params["scenario"]])
     scenario_class = getattr(module, params["scenario"])
@@ -41,15 +84,24 @@ def make_create_env(params, version=0, render=None):
         single_agent_envs = [env for env in dir(flow.envs)
                              if not env.startswith('__')]
 
-        if params['env_name'] in single_agent_envs:
-            env_loc = 'flow.envs'
-        else:
-            env_loc = 'flow.envs.multiagent'
+        try:
+            entry_point = params["env_name"].__module__ + ':' + params["env_name"].__name__
+        except AttributeError:
+            # When loading a trained policy, it will be serielized back to a string
+            if "." in params['env_name']:
+                env_loc = ".".join(params['env_name'].split(".")[:-1])
+                entry_point = env_loc + ':{}'.format(params['env_name'].split(".")[-1])
+            else:
+                if params['env_name'] in single_agent_envs:
+                    env_loc = 'flow.envs'
+                else:
+                    env_loc = 'flow.envs.multiagent'
+                entry_point = env_loc + ':{}'.format(params["env_name"])
 
         try:
             register(
                 id=env_name,
-                entry_point=env_loc + ':{}'.format(params["env_name"]),
+                entry_point=entry_point,
                 kwargs={
                     "env_params": env_params,
                     "sim_params": sim_params,

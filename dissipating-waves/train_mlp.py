@@ -9,8 +9,8 @@ from ray.tune import run_experiments
 from ray.tune.registry import register_env
 
 # from flow.utils.registry import make_create_env
-from utils import make_create_env, unscaledMergePOEnv
-from flow.utils.rllib import FlowParamsEncoder
+# from flow.utils.rllib import FlowParamsEncoder
+from utils import unscaledMergePOEnv, make_create_env, FlowParamsEncoder
 from flow.controllers import RLController, IDMController
 from flow.core.experiment import Experiment
 from flow.core.params import SumoParams, EnvParams, InitialConfig, InFlows, NetParams
@@ -19,7 +19,7 @@ from flow.scenarios.merge import ADDITIONAL_NET_PARAMS
 
 FLOW_RATE = 2000
 HORIZON = 1800
-N_ROLLOUTS = 10
+N_ROLLOUTS = 20
 N_CPUS = 2
 
 
@@ -179,7 +179,7 @@ if __name__ == "__main__":
     for rl_penetration in [0.025, 0.05, 0.1]:
         flow_params = get_flow_params(rl_penetration)
         alg_run, gym_name, config = setup_exps()
-
+        
         trials = run_experiments({
             flow_params["exp_tag"]: {
                 "run": alg_run,
