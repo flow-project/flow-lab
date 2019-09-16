@@ -16,7 +16,7 @@ for i in [0.025, 0.05, 0.1]:
         results_dir)+"/*_{:.3f}_*/".format(i))
     if len(folders) > 0:
         # Assuming for now that these folders are unique
-        filepath = _[0] + "progress.csv"
+        filepath = folders[0] + "progress.csv"
         rewards_data = defaultdict(list)
         with open(filepath) as f:
             reader = csv.DictReader(f)
