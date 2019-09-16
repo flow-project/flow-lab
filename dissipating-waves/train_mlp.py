@@ -18,7 +18,7 @@ from flow.core.params import VehicleParams, SumoCarFollowingParams
 from flow.networks.merge import ADDITIONAL_NET_PARAMS
 
 FLOW_RATE = 2000
-HORIZON = 1800
+HORIZON = 18000
 N_ROLLOUTS = 20
 N_CPUS = 16
 
