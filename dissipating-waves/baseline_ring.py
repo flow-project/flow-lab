@@ -1,5 +1,5 @@
 # from flow.envs import TestEnv
-from utils import make_create_env, unscaledMergePOEnv,PerturbingRingEnv, PERTURB_ENV_PARAMS
+from utils import make_create_env, PerturbingRingEnv, PERTURB_ENV_PARAMS
 from flow.controllers import RLController, IDMController, ContinuousRouter
 from flow.core.experiment import Experiment
 from flow.core.params import SumoParams, EnvParams, InitialConfig, InFlows, NetParams
@@ -26,7 +26,7 @@ def ring_perturbation(render=None):
             speed_mode="obey_safe_speed",
         ),
         routing_controller=(ContinuousRouter, {}),
-        num_vehicles=50)
+        num_vehicles=45)
     # For debugging only
     vehicles.add(
         veh_id="rl",
