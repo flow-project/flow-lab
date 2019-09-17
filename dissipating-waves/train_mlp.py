@@ -193,6 +193,7 @@ if __name__ == "__main__":
                 "stop": {
                     "training_iteration": 200,
                 },
+                "local_dir": "ray_results"
                 "trial_name_creator": functools.partial(trial_string, rl_penetration),
             }
         })
