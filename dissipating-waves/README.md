@@ -91,7 +91,7 @@ python train_merge.py
 ```
 
 ```bash
-python #####.py <-- for ring road
+python train_ring.py
 ```
 
 ## Citing [NEEDS REVIEW]
