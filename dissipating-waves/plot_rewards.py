@@ -6,7 +6,7 @@ import os
 import csv
 from collections import defaultdict
 
-results_dir = "~/ray_results/dissipating_waves/"
+results_dir = "ray_results/dissipating_waves/"
 
 columns = ['episode_reward_mean', 'episode_reward_min',
            'episode_reward_max', 'training_iteration']
@@ -32,4 +32,4 @@ for i in [0.025, 0.05, 0.1]:
 plt.legend()
 plt.xlabel("iterations")
 plt.ylabel("mean reward")
-plt.savefig("results.pdf", bbox_inches="tight")
+plt.savefig("rewards.pdf", bbox_inches="tight")
