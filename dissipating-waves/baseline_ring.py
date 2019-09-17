@@ -47,7 +47,7 @@ def ring_perturbation(render=None):
 
     # Setup the network
     initial_config = InitialConfig(shuffle=True)
-    network = RingScenario(
+    network = RingNetwork(
         name='testing',
         vehicles=vehicles,
         net_params=net_params,
