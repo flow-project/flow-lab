@@ -224,6 +224,7 @@ if __name__ == '__main__':
         #outflow
         array_out += [info['average_outflow']]
     #visualize plot here
+
     print(array_out)
     print(array_in)
 
