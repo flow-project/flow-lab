@@ -70,13 +70,13 @@ Note: No training is done in the baselines.
 The *Open Network Highway - Merge* controller example can be run using the command:
 
 ```bash
-python baseline.py
+python baseline_merge.py
 ```
 
 The *Closed Network Highway - Ring-Road* controller example can be run using the command:
 
 ```bash
-python #####.py
+python baseline_ring.py
 ```
 
 ### Reinforcement Learning Controllers [NEEDS REVIEW]
@@ -87,7 +87,7 @@ MLP policy with shape (3,3).
 In order to run training on the MLP policy, run:
 
 ```bash
-python train_mlp.py
+python train_merge.py
 ```
 
 ```bash
