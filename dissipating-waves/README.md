@@ -102,7 +102,7 @@ If you would like to cite this work, please use the following citation:
 @article{wu2017flow,
   title={Dissipating stop-and-go waves in closed and open networks via deep reinforcement learning},
   author={Kreidieh, Aboudy and Wu, Cathy and Bayen, Alexandre M},
-  journal={ICCPS},
+  journal={ITSC},
   year={2018}
 }
 ```
