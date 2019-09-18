@@ -57,19 +57,22 @@ vehicles.add(
     }),
     car_following_params=SumoCarFollowingParams(
         speed_mode="obey_safe_speed",
+        min_gap=0.5, 
     ),
-    num_vehicles=5)
+    num_vehicles=40)
 vehicles.add(
     veh_id="rl",
     acceleration_controller=(RLController, {}),
     car_following_params=SumoCarFollowingParams(
         speed_mode="obey_safe_speed",
+        accel=3, # vehicle does not inherit from env_params
+        decel=3,
     ),
     num_vehicles=0)
 
 # Set parameters for the network
 additional_net_params = ADDITIONAL_NET_PARAMS.copy()
-additional_net_params["pre_merge_length"] = 600
+additional_net_params["pre_merge_length"] = 500 # inflows have length 100 already
 additional_net_params["post_merge_length"] = 100
 additional_net_params["merge_lanes"] = 1
 additional_net_params["highway_lanes"] = 1
@@ -146,7 +149,7 @@ def setup_exps():
     config["num_workers"] = N_CPUS
     config["train_batch_size"] = HORIZON * N_ROLLOUTS
     config["gamma"] = 0.999  # discount rate
-    config["model"].update({"fcnet_hiddens": [32, 32, 32]})
+    config["model"].update({"fcnet_hiddens": [100, 50, 25]})
     config["use_gae"] = True
     config["lambda"] = 0.97
     config["kl_target"] = 0.02
@@ -177,7 +180,8 @@ if __name__ == "__main__":
     import os
     ray.init(num_cpus=N_CPUS + 1, redirect_output=False)
 
-    for rl_penetration in [0.025, 0.05, 0.1]:
+    # for rl_penetration in [0.025, 0.05, 0.1]:
+    for rl_penetration in [0.05]:
         flow_params = get_flow_params(rl_penetration)
         alg_run, gym_name, config = setup_exps()
         
@@ -192,7 +196,7 @@ if __name__ == "__main__":
                 "checkpoint_at_end": True,
                 "max_failures": 999,
                 "stop": {
-                    "training_iteration": 200,
+                    "training_iteration": 50,
                 },
                 "local_dir": os.path.abspath("./ray_results"),
                 "trial_name_creator": functools.partial(trial_string, rl_penetration),
