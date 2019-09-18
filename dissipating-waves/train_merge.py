@@ -174,6 +174,7 @@ def trial_string(paramval, trial):
 
 if __name__ == "__main__":
     import functools
+    import os
     ray.init(num_cpus=N_CPUS + 1, redirect_output=False)
 
     for rl_penetration in [0.025, 0.05, 0.1]:
@@ -193,7 +194,7 @@ if __name__ == "__main__":
                 "stop": {
                     "training_iteration": 200,
                 },
-                "local_dir": "ray_results"
+                "local_dir": os.path.abspath("./ray_results"),
                 "trial_name_creator": functools.partial(trial_string, rl_penetration),
             }
         })

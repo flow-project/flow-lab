@@ -135,6 +135,7 @@ def setup_exps():
 
 if __name__ == "__main__":
     import functools
+    import os
     ray.init(num_cpus=N_CPUS + 1, redirect_output=False)
     alg_run, gym_name, config = setup_exps()
     trials = run_experiments({
@@ -150,6 +151,6 @@ if __name__ == "__main__":
             "stop": {
                 "training_iteration": 1,
             },
-            "local_dir": "ray_results"
+            "local_dir": os.path.abspath("./ray_results")
         }
     })
