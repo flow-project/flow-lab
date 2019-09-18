@@ -9,7 +9,7 @@ from flow.controllers import SimLaneChangeController, ContinuousRouter
 from flow.envs.bottleneck import BottleneckEnv
 from flow.core.experiment import Experiment
 from flow.core.util import emission_to_csv
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 
 import logging
@@ -76,8 +76,8 @@ class BottleneckDensityExperiment(Experiment):
                     break
             rets.append(ret)
             vels.append(vel)
-            # mean_densities.append(sum(step_densities[100:]) /
-            #                       (num_steps - 100))
+            mean_densities.append(sum(step_densities[100:]) /
+                                  (num_steps - 100))
             env = self.env
             outflow = env.k.vehicle.get_outflow_rate(10000)
             mean_outflows.append(outflow)
@@ -150,6 +150,7 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
             lane_change_mode=1621,
         ),
         num_vehicles=1)
+
     # print(ADDITIONAL_ENV_PARAMS)
     # {'max_accel': 3, 'max_decel': 3, 'lane_change_duration': 5, 'disable_tb': True, 'disable_ramp_metering': True}
     additional_env_params = {
@@ -205,26 +206,24 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
 if __name__ == '__main__':
     # import the experiment variable
     # inflow, number of steps, binary
-
-    # (from paper)
-    # To compute this, we swept
-    # over inflows from 400 to 2500 in steps of 100, ran 10 runs
-    # for each inflow value, and stored the average outflow over
-    # the last 500 seconds. Fig. 6 presents the average value, 1
-    # std-deviation from the average,
-
     tested_flow_rates = 400
     array_in = []
     array_out = []
-    while tested_flow_rates < 2200:
-        exp = bottleneck_example(tested_flow_rates, 1000, render=True)
+    while tested_flow_rates < 2500:
+        exp = bottleneck_example(tested_flow_rates, 1000)
         info = exp.run(10, 1000) #get more explanations for this
         array_in += [tested_flow_rates]
         tested_flow_rates += 1000
         #outflow
         array_out += [info['average_outflow']]
-    #visualize plot here
+    #visualize plot here [needs tuning]
+    plt.plot(array_in, array_out)
 
-    print(array_out)
-    print(array_in)
 
+# (from paper)
+# To compute this, we swept
+# over inflows from 400 to 2500 in steps of 100, ran 10 runs
+# for each inflow value, and stored the average outflow over
+# the last 500 seconds. Fig. 6 presents the average value, 1
+# std-deviation from the average,
+#TODO: arc lengths, last 500secs, feedback controlled ramp meter plot
