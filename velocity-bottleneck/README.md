@@ -115,7 +115,7 @@ If you would like to cite this work, please use the following citation:
 @article{wu2017flow,
   title={Lagrangian Control through Deep-RL: Applications to Bottleneck Decongestion},
   author={Vinitsky, Eugene and Parvate, Kanaad and Kreidieh, Aboudy and Wu, Cathy and Bayen, Alexandre M},
-  journal={ICCPS},
+  journal={ITSC},
   year={2018}
 }
 ```
