@@ -10,19 +10,45 @@ from ray.tune.registry import register_env
 
 # from flow.utils.registry import make_create_env
 # from flow.utils.rllib import FlowParamsEncoder
-from utils import PerturbingRingEnv, make_create_env, FlowParamsEncoder, PERTURB_ENV_PARAMS
+from utils import unscaledMergePOEnv, make_create_env, FlowParamsEncoder
 from flow.controllers import RLController, IDMController
 from flow.core.experiment import Experiment
 from flow.core.params import SumoParams, EnvParams, InitialConfig, InFlows, NetParams
 from flow.core.params import VehicleParams, SumoCarFollowingParams
-from flow.networks.ring import ADDITIONAL_NET_PARAMS
+from flow.networks.merge import ADDITIONAL_NET_PARAMS
 
+FLOW_RATE = 2000
 # HORIZON = 18000
 # N_ROLLOUTS = 20
 # N_CPUS = 16
 HORIZON = 18
 N_ROLLOUTS = 10
 N_CPUS = 2
+
+def setup_inflows(rl_penetration):
+    # Vehicles are introduced from both sides of merge, with RL vehicles entering
+    # from the highway portion as well
+    inflow = InFlows()
+    inflow.add(
+        veh_type="human",
+        edge="inflow_highway",
+        vehs_per_hour=(1 - rl_penetration) * FLOW_RATE,
+        depart_lane="free",
+        depart_speed=10)
+    inflow.add(
+        veh_type="rl",
+        edge="inflow_highway",
+        vehs_per_hour=rl_penetration * FLOW_RATE,
+        depart_lane="free",
+        depart_speed=10)
+    inflow.add(
+        veh_type="human",
+        edge="inflow_merge",
+        vehs_per_hour=100,
+        depart_lane="free",
+        depart_speed=7.5)
+    return inflow
+
 
 # Setup vehicle types
 vehicles = VehicleParams()
@@ -35,7 +61,7 @@ vehicles.add(
         speed_mode="obey_safe_speed",
         min_gap=0.5, 
     ),
-    num_vehicles=45)
+    num_vehicles=5)
 vehicles.add(
     veh_id="rl",
     acceleration_controller=(RLController, {}),
@@ -44,23 +70,26 @@ vehicles.add(
         accel=3, # vehicle does not inherit from env_params
         decel=3,
     ),
-    num_vehicles=5)
+    num_vehicles=0)
 
 # Set parameters for the network
 additional_net_params = ADDITIONAL_NET_PARAMS.copy()
-additional_net_params["length"] = 1400
-additional_net_params["speed_limit"] = 30
+additional_net_params["pre_merge_length"] = 500 # inflows have length 100 already
+additional_net_params["post_merge_length"] = 100
+additional_net_params["merge_lanes"] = 1
+additional_net_params["highway_lanes"] = 1
 
 
-flow_params =  dict(
+def get_flow_params(rl_penetration):
+    return dict(
         # name of the experiment
-        exp_tag="perturbing_ring",
+        exp_tag="transfer_learn",
 
         # name of the flow environment the experiment is running on
-        env_name=PerturbingRingEnv,
+        env_name=unscaledMergePOEnv,
 
         # name of the network class the experiment is running on
-        network="RingNetwork",
+        network="MergeNetwork",
 
         # simulator that is used by the experiment
         simulator='traci',
@@ -77,12 +106,19 @@ flow_params =  dict(
             horizon=HORIZON,
             sims_per_step=5,
             warmup_steps=0,
-            additional_params=PERTURB_ENV_PARAMS,
+            additional_params={
+                "max_accel": 3,
+                "max_decel": 3,
+                "target_velocity": 25,
+                # dunno where the number comes from
+                "num_rl": round(rl_penetration*100/2),
+            },
         ),
 
         # network-related parameters (see flow.core.params.NetParams and the
         # network's documentation or ADDITIONAL_NET_PARAMS component)
         net=NetParams(
+            inflows=setup_inflows(rl_penetration),
             additional_params=additional_net_params,
         ),
 
@@ -92,7 +128,7 @@ flow_params =  dict(
 
         # parameters specifying the positioning of vehicles upon initialization/
         # reset (see flow.core.params.InitialConfig)
-        initial=InitialConfig(shuffle=True),
+        initial=InitialConfig(),
     )
 
 
@@ -136,11 +172,20 @@ def setup_exps():
     return alg_run, gym_name, config
 
 
+# Naming the outputs nicely, and placing them all in one directory
+def trial_string(paramval, trial):
+    return "{}_penetration_{:.3f}".format(trial.trainable_name, paramval)
+
+
 if __name__ == "__main__":
     import functools
     import os
     ray.init(num_cpus=N_CPUS + 1, redirect_output=False)
+
+    rl_penetration = 0.1
+    flow_params = get_flow_params(rl_penetration)
     alg_run, gym_name, config = setup_exps()
+    
     trials = run_experiments({
         flow_params["exp_tag"]: {
             "run": alg_run,
@@ -148,11 +193,12 @@ if __name__ == "__main__":
             "config": {
                 **config
             },
+            "restore": os.path.abspath("./ray_results/perturbing_ring/PPO_PerturbingRingEnv-v0_0_2019-09-18_12-02-20rirglpal/checkpoint_1/checkpoint-1"),
             "checkpoint_freq": 20,
             "checkpoint_at_end": True,
             "max_failures": 999,
             "stop": {
-                "training_iteration": 1,
+                "training_iteration": 200,
             },
             "local_dir": os.path.abspath("./ray_results")
         }
