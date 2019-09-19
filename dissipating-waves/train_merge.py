@@ -59,7 +59,7 @@ vehicles.add(
         speed_mode="obey_safe_speed",
         min_gap=0.5, 
     ),
-    num_vehicles=40)
+    num_vehicles=5)
 vehicles.add(
     veh_id="rl",
     acceleration_controller=(RLController, {}),
