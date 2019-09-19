@@ -11,6 +11,8 @@ from flow.core.experiment import Experiment
 from flow.core.util import emission_to_csv
 import matplotlib.pyplot as plt
 
+import matplotlib
+matplotlib.use("TkAgg")
 
 import logging
 
@@ -67,7 +69,7 @@ class BottleneckDensityExperiment(Experiment):
                 ret_list.append(reward)
 
                 env = self.env
-                step_outflow = env.k.vehicle.get_outflow_rate(20)
+                step_outflow = env.k.vehicle.get_outflow_rate(500)
                 density = self.env.get_bottleneck_density()
 
                 step_outflows.append(step_outflow)
@@ -202,22 +204,24 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
     env = BottleneckEnv(env_params, sim_params, network)
 
     return BottleneckDensityExperiment(env)
+    #visualize plot here [needs tuning]
+
 
 if __name__ == '__main__':
     # import the experiment variable
     # inflow, number of steps, binary
-    tested_flow_rates = 400
-    array_in = []
-    array_out = []
+    tested_flow_rates = 1000
+    flow_in = []
+    flow_out = []
     while tested_flow_rates < 2500:
-        exp = bottleneck_example(tested_flow_rates, 1000)
-        info = exp.run(10, 1000) #get more explanations for this
-        array_in += [tested_flow_rates]
+        exp = bottleneck_example(tested_flow_rates, 2000)
+        info = exp.run(1, 2000) #get more explanations for this
+        flow_in += [tested_flow_rates]
         tested_flow_rates += 1000
         #outflow
-        array_out += [info['average_outflow']]
-    #visualize plot here [needs tuning]
-    plt.plot(array_in, array_out)
+        flow_out += [info['average_outflow']]
+    plt.plot(flow_in, flow_out)
+    plt.show()
 
 
 # (from paper)
