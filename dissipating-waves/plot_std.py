@@ -29,12 +29,13 @@ fig, ax = plt.subplots(dpi=300)
 penetration = 0.05
 csvs = glob.glob(os.path.expanduser(
     results_dir)+"/*_{:.3f}_*".format(penetration))
-time_horizon = 400
+time_horizon = 200
+transient_time = 400
 if len(csvs) > 0:
     data = pd.read_csv(csvs[-1])
     cars_in_highway = data[data.edge_id.isin(edges_of_interest)]
     # eliminate transient
-    cars_in_highway['time'] -= 400
+    cars_in_highway['time'] -= transient_time
     cars_in_highway = cars_in_highway[(cars_in_highway['time']<=time_horizon) & (cars_in_highway['time']>=0)]
     norm = plt.Normalize(0.0, cars_in_highway.speed.max())
     fig, ax = plt.subplots(dpi=300)

@@ -32,4 +32,5 @@ for i in [0.025, 0.05, 0.1]:
 plt.legend()
 plt.xlabel("iterations")
 plt.ylabel("mean reward")
-plt.savefig("rewards.pdf", bbox_inches="tight")
+plt.ylim(bottom=0)
+plt.savefig("rewards.png", dpi=600, bbox_inches="tight")

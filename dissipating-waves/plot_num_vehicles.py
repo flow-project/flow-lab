@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 results_dir = "emission"
 edges_of_interest = ["left","center"]
 
-fig, ax = plt.subplots(dpi=300)
+fig, ax = plt.subplots()
 for i in [0.025, 0.05, 0.1]:
     csvs = glob.glob(os.path.expanduser(
         results_dir)+"/*_{:.3f}_*".format(i))
@@ -20,4 +20,4 @@ for i in [0.025, 0.05, 0.1]:
 ax.legend()
 ax.set_xlabel("time (s)")
 ax.set_ylabel("number of vehicles")
-fig.savefig("num_vehicles.pdf", bbox_inches="tight")
+fig.savefig("num_vehicles.png", dpi=600, bbox_inches="tight")
