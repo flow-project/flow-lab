@@ -28,25 +28,28 @@ ACCEL = 1.5
 
 # Setup vehicle types
 vehicles = VehicleParams()
-vehicles.add(
-    veh_id="human",
-    acceleration_controller=(IDMController, {
-        "noise": 0.2
-    }),
-    car_following_params=SumoCarFollowingParams(
-        speed_mode="no_collide",
-        min_gap=0.5, 
-    ),
-    num_vehicles=45)
-vehicles.add(
-    veh_id="rl",
-    acceleration_controller=(RLController, {}),
-    car_following_params=SumoCarFollowingParams(
-        speed_mode="no_collide",
-        accel=ACCEL, # vehicle does not inherit from env_params
-        decel=ACCEL,
-    ),
-    num_vehicles=5)
+for i in range(5):
+    vehicles.add(
+        veh_id="human{}".format(i),
+        acceleration_controller=(IDMController, {
+            "noise": 0.2
+        }),
+        routing_controller=(ContinuousRouter, {}),
+        car_following_params=SumoCarFollowingParams(
+            speed_mode="obey_safe_speed",
+            min_gap=0.5, 
+        ),
+        num_vehicles=9)
+    vehicles.add(
+        veh_id="rl{}".format(i),
+        acceleration_controller=(RLController, {}),
+        routing_controller=(ContinuousRouter, {}),
+        car_following_params=SumoCarFollowingParams(
+            speed_mode="obey_safe_speed",
+            accel=ACCEL, # vehicle does not inherit from env_params
+            decel=ACCEL,
+        ),
+        num_vehicles=1)
 
 # Set parameters for the network
 additional_net_params = ADDITIONAL_NET_PARAMS.copy()
@@ -94,7 +97,7 @@ flow_params =  dict(
 
         # parameters specifying the positioning of vehicles upon initialization/
         # reset (see flow.core.params.InitialConfig)
-        initial=InitialConfig(shuffle=True),
+        initial=InitialConfig(),
     )
 
 
