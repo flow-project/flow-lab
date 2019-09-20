@@ -27,6 +27,8 @@ def dissipating_waves(render=None):
         }),
         car_following_params=SumoCarFollowingParams(
             speed_mode="obey_safe_speed",
+            min_gap=0.5,
+
         ),
         num_vehicles=5)
     vehicles.add(
@@ -61,7 +63,7 @@ def dissipating_waves(render=None):
 
     # Set parameters for the network
     additional_net_params = ADDITIONAL_NET_PARAMS.copy()
-    additional_net_params["pre_merge_length"] = 600
+    additional_net_params["pre_merge_length"] = 500
     additional_net_params["post_merge_length"] = 100
     additional_net_params["merge_lanes"] = 1
     additional_net_params["highway_lanes"] = 1
@@ -77,7 +79,13 @@ def dissipating_waves(render=None):
         initial_config=initial_config)
 
     # Setup the environment
-    env_params = EnvParams(additional_params=ADDITIONAL_ENV_PARAMS)
+    env_params = EnvParams(additional_params={
+                "max_accel": 1.5,
+                "max_decel": 1.5,
+                "target_velocity": 20,
+                # dunno where the number comes from
+                "num_rl": round(0*100/2),
+            },)
     env = MergePOEnv(env_params, sim_params, network)
     return Experiment(env)
 

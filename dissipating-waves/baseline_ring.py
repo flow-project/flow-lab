@@ -10,7 +10,7 @@ from flow.networks.ring import ADDITIONAL_NET_PARAMS
 
 def ring_perturbation(render=None):
 
-    sim_params = SumoParams(sim_step=0.1, render=True, restart_instance=True)
+    sim_params = SumoParams(sim_step=0.2, render=True, restart_instance=True)
 
     if render is not None:
         sim_params.render = render
@@ -44,7 +44,7 @@ def ring_perturbation(render=None):
     # Set parameters for the network
     additional_net_params = ADDITIONAL_NET_PARAMS.copy()
     additional_net_params["length"] = 1400
-    additional_net_params["speed_limit"] = 30
+    additional_net_params["speed_limit"] = 20
     net_params = NetParams(additional_params=additional_net_params)
 
     # Setup the network
