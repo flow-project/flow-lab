@@ -11,7 +11,7 @@ from ray.tune.registry import register_env
 # from flow.utils.registry import make_create_env
 # from flow.utils.rllib import FlowParamsEncoder
 from utils import PerturbingRingEnv, make_create_env, FlowParamsEncoder, PERTURB_ENV_PARAMS
-from flow.controllers import RLController, IDMController
+from flow.controllers import RLController, IDMController, ContinuousRouter
 from flow.core.experiment import Experiment
 from flow.core.params import SumoParams, EnvParams, InitialConfig, InFlows, NetParams
 from flow.core.params import VehicleParams, SumoCarFollowingParams
@@ -54,7 +54,7 @@ for i in range(5):
 # Set parameters for the network
 additional_net_params = ADDITIONAL_NET_PARAMS.copy()
 additional_net_params["length"] = 1400
-additional_net_params["speed_limit"] = 30
+additional_net_params["speed_limit"] = 20
 
 
 flow_params =  dict(
