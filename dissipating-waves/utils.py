@@ -174,11 +174,11 @@ class unscaledMergePOEnv(MergePOEnv):
 
 PERTURB_ENV_PARAMS = {
     # maximum acceleration for autonomous vehicles, in m/s^2
-    "max_accel": 3,
+    "max_accel": 1.5,
     # maximum deceleration for autonomous vehicles, in m/s^2
-    "max_decel": 3,
+    "max_decel": 1.5,
     # desired velocity for all vehicles in the network, in m/s
-    "target_velocity": 25,
+    "target_velocity": 20,
     # maximum number of controllable vehicles in the network
     "num_rl": 5,
     "merge_flow_rate": 100 # veh/hour

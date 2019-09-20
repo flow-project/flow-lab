@@ -20,9 +20,11 @@ from flow.networks.ring import ADDITIONAL_NET_PARAMS
 # HORIZON = 18000
 # N_ROLLOUTS = 20
 # N_CPUS = 16
-HORIZON = 18
+HORIZON = 9000
 N_ROLLOUTS = 10
-N_CPUS = 2
+N_CPUS = 16
+ACCEL = 1.5
+
 
 # Setup vehicle types
 vehicles = VehicleParams()
@@ -32,7 +34,7 @@ vehicles.add(
         "noise": 0.2
     }),
     car_following_params=SumoCarFollowingParams(
-        speed_mode="obey_safe_speed",
+        speed_mode="no_collide",
         min_gap=0.5, 
     ),
     num_vehicles=45)
@@ -40,9 +42,9 @@ vehicles.add(
     veh_id="rl",
     acceleration_controller=(RLController, {}),
     car_following_params=SumoCarFollowingParams(
-        speed_mode="obey_safe_speed",
-        accel=3, # vehicle does not inherit from env_params
-        decel=3,
+        speed_mode="no_collide",
+        accel=ACCEL, # vehicle does not inherit from env_params
+        decel=ACCEL,
     ),
     num_vehicles=5)
 
@@ -115,12 +117,12 @@ def setup_exps():
     config["num_workers"] = N_CPUS
     config["train_batch_size"] = HORIZON * N_ROLLOUTS
     config["gamma"] = 0.999  # discount rate
-    config["model"].update({"fcnet_hiddens": [100, 50, 25]})
+    config["model"].update({"fcnet_hiddens": [32, 32, 32]})
     config["use_gae"] = True
     config["lambda"] = 0.97
     config["kl_target"] = 0.02
     config["num_sgd_iter"] = 10
-    config['clip_actions'] = False  # FIXME(ev) temporary ray bug
+    # config['clip_actions'] = False  # FIXME(ev) temporary ray bug
     config["horizon"] = HORIZON
 
     # save the flow params for replay
@@ -148,11 +150,11 @@ if __name__ == "__main__":
             "config": {
                 **config
             },
-            "checkpoint_freq": 20,
+            "checkpoint_freq": 5,
             "checkpoint_at_end": True,
             "max_failures": 999,
             "stop": {
-                "training_iteration": 1,
+                "training_iteration": 50,
             },
             "local_dir": os.path.abspath("./ray_results")
         }

@@ -21,9 +21,10 @@ FLOW_RATE = 2000
 # HORIZON = 18000
 # N_ROLLOUTS = 20
 # N_CPUS = 16
-HORIZON = 18
+HORIZON = 9000
 N_ROLLOUTS = 10
-N_CPUS = 2
+N_CPUS = 16
+ACCEL = 1.5
 
 def setup_inflows(rl_penetration):
     # Vehicles are introduced from both sides of merge, with RL vehicles entering
@@ -58,7 +59,7 @@ vehicles.add(
         "noise": 0.2
     }),
     car_following_params=SumoCarFollowingParams(
-        speed_mode="obey_safe_speed",
+        speed_mode="no_collide",
         min_gap=0.5, 
     ),
     num_vehicles=5)
@@ -66,9 +67,9 @@ vehicles.add(
     veh_id="rl",
     acceleration_controller=(RLController, {}),
     car_following_params=SumoCarFollowingParams(
-        speed_mode="obey_safe_speed",
-        accel=3, # vehicle does not inherit from env_params
-        decel=3,
+        speed_mode="no_collide",
+        accel=ACCEL, # vehicle does not inherit from env_params
+        decel=ACCEL,
     ),
     num_vehicles=0)
 
@@ -107,9 +108,9 @@ def get_flow_params(rl_penetration):
             sims_per_step=5,
             warmup_steps=0,
             additional_params={
-                "max_accel": 3,
-                "max_decel": 3,
-                "target_velocity": 25,
+                "max_accel": ACCEL,
+                "max_decel": ACCEL,
+                "target_velocity": 20,
                 # dunno where the number comes from
                 "num_rl": round(rl_penetration*100/2),
             },
@@ -156,7 +157,7 @@ def setup_exps():
     config["lambda"] = 0.97
     config["kl_target"] = 0.02
     config["num_sgd_iter"] = 10
-    config['clip_actions'] = False  # FIXME(ev) temporary ray bug
+    # config['clip_actions'] = False  # FIXME(ev) temporary ray bug
     config["horizon"] = HORIZON
 
     # save the flow params for replay
@@ -194,11 +195,11 @@ if __name__ == "__main__":
                 **config
             },
             "restore": os.path.abspath("./ray_results/perturbing_ring/PPO_PerturbingRingEnv-v0_0_2019-09-18_12-02-20rirglpal/checkpoint_1/checkpoint-1"),
-            "checkpoint_freq": 20,
+            "checkpoint_freq": 5,
             "checkpoint_at_end": True,
             "max_failures": 999,
             "stop": {
-                "training_iteration": 200,
+                "training_iteration": 50,
             },
             "local_dir": os.path.abspath("./ray_results")
         }
