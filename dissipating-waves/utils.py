@@ -263,4 +263,4 @@ class PerturbingRingEnv(unscaledMergePOEnv):
         else:
             pos = self.k.vehicle.get_position(in_edge)
             target_id = in_edge[np.argmin(np.abs(pos))]
-            self.k.vehicle.apply_acceleration(target_id, -abs(self.env_params.additional_params["max_decel"]))
+            self.k.vehicle.apply_acceleration(target_id, -100)
