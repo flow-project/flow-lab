@@ -210,7 +210,7 @@ if __name__ == '__main__':
     flow_out = []
     while tested_flow_rates < 600:
         exp = bottleneck_example(tested_flow_rates, 2000)
-        info, outflows = exp.run(1, 2000)
+        info, outflows = exp.run(10, 2000)
         # store info
         flow_in += [tested_flow_rates]
         flow_out += [info['average_outflow']]
