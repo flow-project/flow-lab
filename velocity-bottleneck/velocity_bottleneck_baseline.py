@@ -11,9 +11,6 @@ from flow.core.experiment import Experiment
 from flow.core.util import emission_to_csv
 import matplotlib.pyplot as plt
 
-import matplotlib
-matplotlib.use("TkAgg")
-
 import logging
 
 import numpy as np
