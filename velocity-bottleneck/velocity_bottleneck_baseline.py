@@ -8,13 +8,10 @@ from flow.networks.bottleneck import BottleneckNetwork
 from flow.controllers import SimLaneChangeController, ContinuousRouter
 from flow.envs.bottleneck import BottleneckEnv
 from flow.core.experiment import Experiment
-from flow.core.util import emission_to_csv
-import matplotlib.pyplot as plt
-
 import logging
+results_dir = "~/flow-lab/velocity_bottleneck/baseline_results/"
 
 import numpy as np
-import os
 import pandas as pd
 SCALING = 1
 DISABLE_TB = True
@@ -217,9 +214,8 @@ if __name__ == '__main__':
         tested_flow_rates += 1000
         #outflow
         flow_out += [info['average_outflow']]
-    plt.plot(flow_in, flow_out)
-    plt.show()
-
+    data = {'FLOW_IN': flow_in, 'FLOW_OUT': flow_out}
+    pd.DataFrame(data).to_csv(results_dir + "ramp_off.csv")
 
 
 # (from paper)
