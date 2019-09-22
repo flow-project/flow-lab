@@ -9,7 +9,7 @@ from flow.controllers import SimLaneChangeController, ContinuousRouter
 from flow.envs.bottleneck import BottleneckEnv
 from flow.core.experiment import Experiment
 import logging
-results_dir = "~/flow-lab/velocity_bottleneck/baseline_results/"
+results_dir = "~/flow-lab/velocity-bottleneck/baseline_results/"
 
 import numpy as np
 import pandas as pd
@@ -90,15 +90,15 @@ class BottleneckDensityExperiment(Experiment):
         info_dict['average_outflow'] = np.mean(mean_outflows)
         info_dict['per_rollout_outflows'] = mean_outflows
 
-        # info_dict['average_rollout_density_outflow'] = np.mean(mean_densities)
+        info_dict['average_rollout_density_outflow'] = np.mean(mean_densities)
 
-        # print('Average, std return: {}, {}'.format(
-        #     np.mean(rets), np.std(rets)))
-        # print('Average, std speed: {}, {}'.format(
-        #     np.mean(mean_vels), np.std(std_vels)))
+        print('Average, std return: {}, {}'.format(
+            np.mean(rets), np.std(rets)))
+        print('Average, std speed: {}, {}'.format(
+            np.mean(mean_vels), np.std(std_vels)))
         self.env.terminate()
 
-        return info_dict
+        return info_dict, mean_outflows
 
 
 def bottleneck_example(flow_rate, horizon, restart_instance=False,
@@ -202,20 +202,29 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
 
 
 if __name__ == '__main__':
+
     # import the experiment variable
-    # inflow, number of steps, binary
-    tested_flow_rates = 1000
+    tested_flow_rates = 500
+    each_flow_data = {"FLOW_IN": [], "ALL_FLOW_OUT": []}
     flow_in = []
     flow_out = []
     while tested_flow_rates < 2500:
         exp = bottleneck_example(tested_flow_rates, 2000)
-        info = exp.run(1, 2000) #get more explanations for this
+        info, outflows = exp.run(10, 2000)
+        # store info
         flow_in += [tested_flow_rates]
-        tested_flow_rates += 1000
-        #outflow
         flow_out += [info['average_outflow']]
-    data = {'FLOW_IN': flow_in, 'FLOW_OUT': flow_out}
-    pd.DataFrame(data).to_csv(results_dir + "ramp_off.csv")
+        each_flow_data["FLOW_IN"].extend([tested_flow_rates] * len(outflows))
+        each_flow_data["ALL_FLOW_OUT"].extend(outflows)
+        # update flow rate
+        tested_flow_rates += 100
+
+    # storing the data in csv files
+    mean_flow_data = {'FLOW_IN': flow_in, 'MEAN_FLOW_OUT': flow_out}
+    path_for_mean_results = results_dir + "ramp_off_mean.csv"
+    path_for_each_results = results_dir + "ramp_off_each.csv"
+    pd.DataFrame(mean_flow_data).to_csv(path_for_mean_results, index=False)
+    pd.DataFrame(each_flow_data).to_csv(path_for_each_results, index=False)
 
 
 # (from paper)
@@ -224,4 +233,3 @@ if __name__ == '__main__':
 # for each inflow value, and stored the average outflow over
 # the last 500 seconds. Fig. 6 presents the average value, 1
 # std-deviation from the average,
-#TODO: arc lengths, last 500secs, feedback controlled ramp meter plot
