@@ -201,7 +201,7 @@ if __name__ == "__main__":
             "checkpoint_at_end": True,
             "max_failures": 999,
             "stop": {
-                "training_iteration": 50,
+                "training_iteration": 50+checkpoint_number,
             },
             "local_dir": os.path.abspath("./ray_results")
         }
