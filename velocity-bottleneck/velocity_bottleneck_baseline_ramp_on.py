@@ -17,7 +17,7 @@ SCALING = 1
 DISABLE_TB = True
 
 # If set to False, ALINEA will control the ramp meter
-DISABLE_RAMP_METER = True
+DISABLE_RAMP_METER = False
 INFLOW = 2300
 
 
@@ -130,7 +130,8 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
         sim_step=0.5,
         render=render,
         overtake_right=False,
-        restart_instance=restart_instance)
+        restart_instance=restart_instance
+    )
 
     vehicles = VehicleParams()
 
@@ -226,11 +227,10 @@ if __name__ == '__main__':
             print(err)
             break
 
-
     # storing the data in csv files
     mean_flow_data = {'FLOW_IN': flow_in, 'MEAN_FLOW_OUT': flow_out}
-    path_for_mean_results = results_dir + "ramp_off_mean.csv"
-    path_for_each_results = results_dir + "ramp_off_each.csv"
+    path_for_mean_results = results_dir + "ramp_on_mean.csv"
+    path_for_each_results = results_dir + "ramp_on_each.csv"
     pd.DataFrame(mean_flow_data).to_csv(path_for_mean_results, index=False)
     pd.DataFrame(each_flow_data).to_csv(path_for_each_results, index=False)
 
