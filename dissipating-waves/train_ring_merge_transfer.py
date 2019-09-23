@@ -59,7 +59,7 @@ vehicles.add(
         "noise": 0.2
     }),
     car_following_params=SumoCarFollowingParams(
-        speed_mode="no_collide",
+        speed_mode="obey_safe_speed",
         min_gap=0.5, 
     ),
     num_vehicles=5)
@@ -67,7 +67,7 @@ vehicles.add(
     veh_id="rl",
     acceleration_controller=(RLController, {}),
     car_following_params=SumoCarFollowingParams(
-        speed_mode="no_collide",
+        speed_mode="obey_safe_speed",
         accel=ACCEL, # vehicle does not inherit from env_params
         decel=ACCEL,
     ),
@@ -183,6 +183,8 @@ if __name__ == "__main__":
     import os
     ray.init(num_cpus=N_CPUS + 1, redirect_output=False)
 
+    pre_trained_policy = os.path.abspath("./ray_results/perturbing_ring/PPO_PerturbingRingEnv-v0_0_2019-09-21_02-50-24oj348616/")
+    checkpoint_number = 50
     rl_penetration = 0.1
     flow_params = get_flow_params(rl_penetration)
     alg_run, gym_name, config = setup_exps()
@@ -194,7 +196,7 @@ if __name__ == "__main__":
             "config": {
                 **config
             },
-            "restore": os.path.abspath("./ray_results/perturbing_ring/PPO_PerturbingRingEnv-v0_0_2019-09-18_12-02-20rirglpal/checkpoint_1/checkpoint-1"),
+            "restore": pre_trained_policy + "/checkpoint_{}/checkpoint-{}".format(checkpoint_number),
             "checkpoint_freq": 5,
             "checkpoint_at_end": True,
             "max_failures": 999,
