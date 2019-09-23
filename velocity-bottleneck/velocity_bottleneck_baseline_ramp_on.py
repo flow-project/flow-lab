@@ -130,8 +130,8 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
         sim_step=0.5,
         render=render,
         overtake_right=False,
-        restart_instance=restart_instance,
-        emission_path='data')
+        restart_instance=restart_instance
+    )
 
     vehicles = VehicleParams()
 
@@ -165,9 +165,9 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
     inflow.add(
         veh_type="human",
         edge="1",
-        vehsPerHour=flow_rate,
-        departLane="random",
-        departSpeed=10)
+        vehs_per_hour=flow_rate,
+        depart_lane="random",
+        depart_speed=10)
 
     traffic_lights = TrafficLightParams()
     if not DISABLE_TB:
@@ -209,19 +209,23 @@ if __name__ == '__main__':
     flow_in = []
     flow_out = []
     while tested_flow_rates < 3500:
-        print("---------------------------------------")
-        print(" now testing " + str(tested_flow_rates))
-        print(" final will be " + str(3500))
-        print("---------------------------------------")
-        exp = bottleneck_example(tested_flow_rates, 2000)
-        info, outflows = exp.run(10, 2000)
-        # store info
-        flow_in += [tested_flow_rates]
-        flow_out += [info['average_outflow']]
-        each_flow_data["FLOW_IN"].extend([tested_flow_rates] * len(outflows))
-        each_flow_data["ALL_FLOW_OUT"].extend(outflows)
-        # update flow rate
-        tested_flow_rates += 100
+        try:
+            print("---------------------------------------")
+            print(" now testing " + str(tested_flow_rates))
+            print(" final will be " + str(3500))
+            print("---------------------------------------")
+            exp = bottleneck_example(tested_flow_rates, 2000)
+            info, outflows = exp.run(10, 2000)
+            # store info
+            flow_in += [tested_flow_rates]
+            flow_out += [info['average_outflow']]
+            each_flow_data["FLOW_IN"].extend([tested_flow_rates] * len(outflows))
+            each_flow_data["ALL_FLOW_OUT"].extend(outflows)
+            # update flow rate
+            tested_flow_rates += 100
+        except Exception as err:
+            print(err)
+            break
 
     # storing the data in csv files
     mean_flow_data = {'FLOW_IN': flow_in, 'MEAN_FLOW_OUT': flow_out}
