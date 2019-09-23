@@ -152,7 +152,7 @@ def setup_exps():
     config["num_workers"] = N_CPUS
     config["train_batch_size"] = HORIZON * N_ROLLOUTS
     config["gamma"] = 0.999  # discount rate
-    config["model"].update({"fcnet_hiddens": [100, 50, 25]})
+    config["model"].update({"fcnet_hiddens": [32,32,32]})
     config["use_gae"] = True
     config["lambda"] = 0.97
     config["kl_target"] = 0.02
@@ -196,7 +196,7 @@ if __name__ == "__main__":
             "config": {
                 **config
             },
-            "restore": pre_trained_policy + "/checkpoint_{}/checkpoint-{}".format(checkpoint_number),
+            "restore": pre_trained_policy + "/checkpoint_{0}/checkpoint-{0}".format(checkpoint_number),
             "checkpoint_freq": 5,
             "checkpoint_at_end": True,
             "max_failures": 999,
