@@ -56,7 +56,7 @@ vehicles.add(
         "noise": 0.2
     }),
     car_following_params=SumoCarFollowingParams(
-        speed_mode="no_collide",
+        speed_mode="obey_safe_speed",
         min_gap=0.5, 
     ),
     num_vehicles=5)
@@ -64,7 +64,7 @@ vehicles.add(
     veh_id="rl",
     acceleration_controller=(RLController, {}),
     car_following_params=SumoCarFollowingParams(
-        speed_mode="no_collide",
+        speed_mode="obey_safe_speed",
         accel=ACCEL, # vehicle does not inherit from env_params
         decel=ACCEL,
     ),
@@ -130,7 +130,7 @@ def get_flow_params(rl_penetration):
     )
 
 
-def setup_exps():
+def setup_exps(version=0):
     """Return the relevant components of an RLlib experiment.
 
     Returns
@@ -163,7 +163,7 @@ def setup_exps():
     config['env_config']['flow_params'] = flow_json
     config['env_config']['run'] = alg_run
 
-    create_env, gym_name = make_create_env(params=flow_params, version=0)
+    create_env, gym_name = make_create_env(params=flow_params, version=version)
 
     # Register as rllib env
     register_env(gym_name, create_env)
@@ -180,10 +180,9 @@ if __name__ == "__main__":
     import os
     ray.init(num_cpus=N_CPUS + 1, redirect_output=False)
 
-    # for rl_penetration in [0.025, 0.05, 0.1]:
-    for rl_penetration in [0.05]:
+    for i, rl_penetration in enumerate([0.025, 0.05, 0.1]):
         flow_params = get_flow_params(rl_penetration)
-        alg_run, gym_name, config = setup_exps()
+        alg_run, gym_name, config = setup_exps(version=i)
         
         trials = run_experiments({
             flow_params["exp_tag"]: {
@@ -192,11 +191,11 @@ if __name__ == "__main__":
                 "config": {
                     **config
                 },
-                "checkpoint_freq": 5,
+                "checkpoint_freq": 20,
                 "checkpoint_at_end": True,
                 "max_failures": 999,
                 "stop": {
-                    "training_iteration": 50,
+                    "training_iteration": 200,
                 },
                 "local_dir": os.path.abspath("./ray_results"),
                 "trial_name_creator": functools.partial(trial_string, rl_penetration),

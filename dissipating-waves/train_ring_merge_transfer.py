@@ -18,11 +18,8 @@ from flow.core.params import VehicleParams, SumoCarFollowingParams
 from flow.networks.merge import ADDITIONAL_NET_PARAMS
 
 FLOW_RATE = 2000
-# HORIZON = 18000
-# N_ROLLOUTS = 20
-# N_CPUS = 16
-HORIZON = 9000
-N_ROLLOUTS = 10
+HORIZON = 18000
+N_ROLLOUTS = 20
 N_CPUS = 16
 ACCEL = 1.5
 
@@ -181,10 +178,23 @@ def trial_string(paramval, trial):
 if __name__ == "__main__":
     import functools
     import os
+    import glob
+
     ray.init(num_cpus=N_CPUS + 1, redirect_output=False)
 
-    pre_trained_policy = os.path.abspath("./ray_results/perturbing_ring/PPO_PerturbingRingEnv-v0_0_2019-09-21_02-50-24oj348616/")
-    checkpoint_number = 50
+    # get latest ring policy
+    ring_dir = "ray_results/perturbing_ring/"
+    ring_dir = os.path.abspath(ring_dir)
+    os.chdir(ring_dir)
+    files = filter(os.path.isdir, os.listdir(ring_dir))
+    files = [os.path.join(ring_dir, f) for f in files] # add path to each file
+    files.sort(key=os.path.getmtime, reverse=True)
+    pre_trained_policy = files[0]
+
+    checkpoints = glob.glob(os.path.join(pre_trained_policy, 'checkpoint_*'))
+    checkpoints = [int(i.split('_')[-1]) for i in checkpoints]
+    checkpoint_number = max(checkpoints)
+
     rl_penetration = 0.1
     flow_params = get_flow_params(rl_penetration)
     alg_run, gym_name, config = setup_exps()
@@ -197,12 +207,12 @@ if __name__ == "__main__":
                 **config
             },
             "restore": pre_trained_policy + "/checkpoint_{0}/checkpoint-{0}".format(checkpoint_number),
-            "checkpoint_freq": 5,
+            "checkpoint_freq": 20,
             "checkpoint_at_end": True,
             "max_failures": 999,
             "stop": {
-                "training_iteration": 50+checkpoint_number,
+                "training_iteration": 200+checkpoint_number,
             },
-            "local_dir": os.path.abspath("./ray_results")
+            "local_dir": os.path.abspath("./ray_results"),
         }
     })

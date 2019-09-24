@@ -17,11 +17,8 @@ from flow.core.params import SumoParams, EnvParams, InitialConfig, InFlows, NetP
 from flow.core.params import VehicleParams, SumoCarFollowingParams
 from flow.networks.ring import ADDITIONAL_NET_PARAMS
 
-# HORIZON = 18000
-# N_ROLLOUTS = 20
-# N_CPUS = 16
-HORIZON = 9000
-N_ROLLOUTS = 10
+HORIZON = 18000
+N_ROLLOUTS = 20
 N_CPUS = 16
 ACCEL = 1.5
 
@@ -120,7 +117,7 @@ def setup_exps():
     config["num_workers"] = N_CPUS
     config["train_batch_size"] = HORIZON * N_ROLLOUTS
     config["gamma"] = 0.999  # discount rate
-    config["model"].update({"fcnet_hiddens": [32, 32, 32]})
+    config["model"].update({"fcnet_hiddens": [32,32,32]})
     config["use_gae"] = True
     config["lambda"] = 0.97
     config["kl_target"] = 0.02
@@ -153,11 +150,11 @@ if __name__ == "__main__":
             "config": {
                 **config
             },
-            "checkpoint_freq": 5,
+            "checkpoint_freq": 20,
             "checkpoint_at_end": True,
             "max_failures": 999,
             "stop": {
-                "training_iteration": 50,
+                "training_iteration": 200,
             },
             "local_dir": os.path.abspath("./ray_results")
         }
