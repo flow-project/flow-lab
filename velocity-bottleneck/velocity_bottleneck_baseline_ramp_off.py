@@ -9,20 +9,20 @@ from flow.controllers import SimLaneChangeController, ContinuousRouter
 from flow.envs.bottleneck import BottleneckEnv
 from flow.core.experiment import Experiment
 import logging
-results_dir = "~/flow-lab/velocity-bottleneck/baseline_results/"
-
+import time
 import numpy as np
 import pandas as pd
+
+results_dir = "~/flow-lab/velocity-bottleneck/baseline_results/"
 SCALING = 1
 DISABLE_TB = True
 
 # If set to False, ALINEA will control the ramp meter
 DISABLE_RAMP_METER = True
-INFLOW = 2300
 
 
 class BottleneckDensityExperiment(Experiment):
-    """Experiment object for bottleneck-specific simulations.
+    """ Experiment object for bottleneck-specific simulations.
 
     Extends flow.core.experiment.Experiment
     """
@@ -31,7 +31,7 @@ class BottleneckDensityExperiment(Experiment):
         """Instantiate the bottleneck experiment."""
         super().__init__(env)
 
-    def run(self, num_runs, num_steps, rl_actions=None, convert_to_csv=False):
+    def run(self, num_runs, num_steps, rl_actions=None):
         """See parent class."""
         info_dict = {}
         if rl_actions is None:
@@ -146,8 +146,6 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
         ),
         num_vehicles=1)
 
-    # print(ADDITIONAL_ENV_PARAMS)
-    # {'max_accel': 3, 'max_decel': 3, 'lane_change_duration': 5, 'disable_tb': True, 'disable_ramp_metering': True}
     additional_env_params = {
         "target_velocity": 40,
         "max_accel": 1,
@@ -155,8 +153,13 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
         "lane_change_duration": 5,
         "add_rl_if_exit": False,
         "disable_tb": DISABLE_TB,
-        "disable_ramp_metering": DISABLE_RAMP_METER
+        "disable_ramp_metering": DISABLE_RAMP_METER,
+        "n_crit": 12,
+        "q_max": 3000,
+        "q_min": 900,
+        "feedback_coeff": 40
     }
+
     env_params = EnvParams(
         horizon=horizon, additional_params=additional_env_params)
 
@@ -197,17 +200,20 @@ def bottleneck_example(flow_rate, horizon, restart_instance=False,
     env = BottleneckEnv(env_params, sim_params, network)
 
     return BottleneckDensityExperiment(env)
-    #visualize plot here [needs tuning]
 
 
 if __name__ == '__main__':
+    # (from paper) We swept over inflows from 400
+    # to 2500 (3500 in our case) in steps of 100, ran 10 runs
+    # for each inflow value, and stored the average outflow over
+    # the last 500 seconds.
 
     # import the experiment variable
     tested_flow_rates = 400
     each_flow_data = {"FLOW_IN": [], "ALL_FLOW_OUT": []}
     flow_in = []
     flow_out = []
-    while tested_flow_rates < 3500:
+    while tested_flow_rates < 3600:
         try:
             print("---------------------------------------")
             print(" now testing " + str(tested_flow_rates))
@@ -226,18 +232,10 @@ if __name__ == '__main__':
             print(err)
             break
 
-
     # storing the data in csv files
     mean_flow_data = {'FLOW_IN': flow_in, 'MEAN_FLOW_OUT': flow_out}
-    path_for_mean_results = results_dir + "ramp_off_mean.csv"
-    path_for_each_results = results_dir + "ramp_off_each.csv"
+    # add a time stamp to file name
+    path_for_mean_results = results_dir + "ramp_off_mean" + time.strftime("%Y-%m-%d::%H:%M") + ".csv"
+    path_for_each_results = results_dir + "ramp_off_each" + time.strftime("%Y-%m-%d::%H:%M") + ".csv"
     pd.DataFrame(mean_flow_data).to_csv(path_for_mean_results, index=False)
     pd.DataFrame(each_flow_data).to_csv(path_for_each_results, index=False)
-
-
-# (from paper)
-# To compute this, we swept
-# over inflows from 400 to 2500 in steps of 100, ran 10 runs
-# for each inflow value, and stored the average outflow over
-# the last 500 seconds. Fig. 6 presents the average value, 1
-# std-deviation from the average,
