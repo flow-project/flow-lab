@@ -217,7 +217,7 @@ if __name__ == '__main__':
             print(" now testing " + str(tested_flow_rates))
             print(" final will be " + str(3500))
             print("---------------------------------------")
-            exp = bottleneck_example(tested_flow_rates, 2000)
+            exp = bottleneck_example(tested_flow_rates, 2000, restart_instance=True)
             info, outflows = exp.run(10, 2000)
             # store info
             flow_in += [tested_flow_rates]
