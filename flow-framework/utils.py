@@ -25,6 +25,9 @@ class ControllerEnv(TestEnv):
                     in [FollowerStopper, PISaturation]:
                 # set the color as red
                 self.k.vehicle.set_color(veh_id, color=(255, 0, 0))
+                # set the leader as cyan
+                leader = self.k.vehicle.get_leader(veh_id)
+                self.k.vehicle.set_color(leader, color=(0, 255, 255))
                 # if below automated time, use IDM to control vehicle dynamics
                 if self.time_counter < self.automated_time:
                     accel = self.controllers[veh_id].get_accel(self)
